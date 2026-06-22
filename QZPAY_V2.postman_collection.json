@@ -1,0 +1,1051 @@
+{
+  "info": {
+    "name": "QZPAY V2 \u2014 Merchant API",
+    "description": "API dokumentasi merchant QZPAY V2. Khusus endpoint yang bisa diakses pake API Key.\n\n## Environment Variables\nSet environment `QZPAY_V2_PUBLIC` dengan:\n- `base_url`: `https://api.qzpayment.com/v2`\n- `qzpay_key`: API Key kamu (format: qz_...)\n- `qzpay_secret`: Isi SAMA dengan API Key (digunakan sebagai secret HMAC)\n- `merchant_id`: ID merchant kamu\n- `store_id`: ID store\n- `payment_id`: ID payment\n- `reference_id`: QZ-XXXX\n- `webhook_id`: ID webhook\n- `api_key_id`: ID API key\n- `staff_id`: ID staff\n- `notification_id`: ID notifikasi\n- `payment_link_id`: ID payment link\n- `payment_link_code`: Code payment link\n- `wd_id`: ID withdrawal\n- `payment_amount`, `wd_amount`: nominal\n\n## Auth\nSemua request (kecuali public endpoint) wajib HMAC-SHA256 signing dengan:\n- `X-QZPAY-KEY`: API Key\n- `X-QZPAY-TIMESTAMP`: ISO8601 UTC\n- `X-QZPAY-SIGNATURE`: HMAC-SHA256(METHOD:PATH:BODY_HASH:TIMESTAMP)\n\nSignature sudah auto-calculate dari Pre-request Script.\n\n## Signature Formula\n```\nbodyHash = SHA256(body) dalam lowercase hex\nstringToSign = METHOD + \":\" + PATH + \":\" + bodyHash + \":\" + timestamp\nsignature = HMAC-SHA256(stringToSign, apiKey)\n```\nUntuk GET/DELETE: body hash = SHA256(\"\") = e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v2/health",
+              "host": ["{{base_url}}"],
+              "path": ["v2", "health"]
+            }
+          }
+        },
+        {
+          "name": "Public Settings",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v2/health/public-settings",
+              "host": ["{{base_url}}"],
+              "path": ["v2", "health", "public-settings"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Payment",
+      "item": [
+        {
+          "name": "Create Payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Idempotency-Key", "value": "{{$guid}}", "disabled": true }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"merchantId\": \"{{merchant_id}}\",\n  \"amount\": 15000,\n  \"channel\": \"QRIS\",\n  \"source\": \"DYNAMIC_QRIS\",\n  \"feeBearer\": \"MERCHANT\",\n  \"customerName\": \"Budi\",\n  \"customerEmail\": \"budi@email.com\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/v2/payments",
+              "host": ["{{base_url}}"],
+              "path": ["v2", "payments"]
+            }
+          }
+        },
+        {
+          "name": "List Payments",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v2/payments?page=1&limit=20",
+              "host": ["{{base_url}}"],
+              "path": ["v2", "payments"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Payment Detail",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v2/payments/{{payment_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["v2", "payments", "{{payment_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Get Payment by Reference",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v2/payments/reference/{{reference_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["v2", "payments", "reference", "{{reference_id}}"]
+            }
+          }
+        },
+        {
+          "name": "List Payments by Merchant",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v2/merchants/{{merchant_id}}/payments?page=1&limit=20",
+              "host": ["{{base_url}}"],
+              "path": ["v2", "merchants", "{{merchant_id}}", "payments"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Balance",
+      "item": [
+        {
+          "name": "Get Balance",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v2/merchants/{{merchant_id}}/balance",
+              "host": ["{{base_url}}"],
+              "path": ["v2", "merchants", "{{merchant_id}}", "balance"]
+            }
+          }
+        },
+        {
+          "name": "Get Ledger",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v2/merchants/{{merchant_id}}/ledger?page=1&limit=20",
+              "host": ["{{base_url}}"],
+              "path": ["v2", "merchants", "{{merchant_id}}", "ledger"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Withdrawal",
+      "item": [
+        {
+          "name": "Request Withdrawal",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Idempotency-Key", "value": "{{$guid}}", "disabled": true }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 500000,\n  \"bankCode\": \"014\",\n  \"bankName\": \"BCA\",\n  \"bankAccount\": \"1234567890\",\n  \"bankHolder\": \"BUDI SANTOSO\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/v2/merchants/{{merchant_id}}/withdrawals",
+              "host": ["{{base_url}}"],
+              "path": ["v2", "merchants", "{{merchant_id}}", "withdrawals"]
+            }
+          }
+        },
+        {
+          "name": "List Withdrawals",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v2/merchants/{{merchant_id}}/withdrawals?page=1&limit=20",
+              "host": ["{{base_url}}"],
+              "path": ["v2", "merchants", "{{merchant_id}}", "withdrawals"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Withdrawal Detail",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v2/merchants/{{merchant_id}}/withdrawals/{{wd_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["v2", "merchants", "{{merchant_id}}", "withdrawals", "{{wd_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Confirm Withdrawal OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"otp\": \"123456\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/v2/merchants/{{merchant_id}}/withdrawals/{{wd_id}}/confirm",
+              "host": ["{{base_url}}"],
+              "path": ["v2", "merchants", "{{merchant_id}}", "withdrawals", "{{wd_id}}", "confirm"]
+            }
+          }
+        },
+        {
+          "name": "List Banks",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v2/merchants/{{merchant_id}}/banks",
+              "host": ["{{base_url}}"],
+              "path": ["v2", "merchants", "{{merchant_id}}", "banks"]
+            }
+          }
+        },
+        {
+          "name": "List Withdrawal Methods",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v2/merchants/{{merchant_id}}/withdrawal-methods",
+              "host": ["{{base_url}}"],
+              "path": ["v2", "merchants", "{{merchant_id}}", "withdrawal-methods"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Webhook",
+      "item": [
+        {
+          "name": "Create Webhook",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"url\": \"https://myserver.com/webhook\",\n  \"events\": [\"payment.success\", \"withdrawal.completed\"]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/v2/merchants/{{merchant_id}}/webhooks",
+              "host": ["{{base_url}}"],
+              "path": ["v2", "merchants", "{{merchant_id}}", "webhooks"]
+            }
+          }
+        },
+        {
+          "name": "List Webhooks",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v2/merchants/{{merchant_id}}/webhooks",
+              "host": ["{{base_url}}"],
+              "path": ["v2", "merchants", "{{merchant_id}}", "webhooks"]
+            }
+          }
+        },
+        {
+          "name": "Get Webhook Detail",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v2/merchants/{{merchant_id}}/webhooks/{{webhook_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["v2", "merchants", "{{merchant_id}}", "webhooks", "{{webhook_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Webhook",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"url\": \"https://myserver.com/webhook-v2\",\n  \"events\": [\"payment.success\", \"payment.failed\"],\n  \"active\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/v2/merchants/{{merchant_id}}/webhooks/{{webhook_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["v2", "merchants", "{{merchant_id}}", "webhooks", "{{webhook_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Webhook",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v2/merchants/{{merchant_id}}/webhooks/{{webhook_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["v2", "merchants", "{{merchant_id}}", "webhooks", "{{webhook_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Get Webhook Logs",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v2/merchants/{{merchant_id}}/webhooks/{{webhook_id}}/logs",
+              "host": ["{{base_url}}"],
+              "path": ["v2", "merchants", "{{merchant_id}}", "webhooks", "{{webhook_id}}", "logs"]
+            }
+          }
+        },
+        {
+          "name": "Test Webhook",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v2/merchants/{{merchant_id}}/webhooks/{{webhook_id}}/test",
+              "host": ["{{base_url}}"],
+              "path": ["v2", "merchants", "{{merchant_id}}", "webhooks", "{{webhook_id}}", "test"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Merchant",
+      "item": [
+        {
+          "name": "Create Merchant",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Toko Saya\",\n  \"description\": \"Toko online\",\n  \"phone\": \"08123456789\",\n  \"email\": \"toko@email.com\",\n  \"city\": \"Jakarta\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/v2/merchants",
+              "host": ["{{base_url}}"],
+              "path": ["v2", "merchants"]
+            }
+          }
+        },
+        {
+          "name": "List My Merchants",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v2/merchants",
+              "host": ["{{base_url}}"],
+              "path": ["v2", "merchants"]
+            }
+          }
+        },
+        {
+          "name": "Get Merchant Detail",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v2/merchants/{{merchant_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["v2", "merchants", "{{merchant_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Merchant",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Toko Saya Updated\",\n  \"description\": \"Toko online terpercaya\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/v2/merchants/{{merchant_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["v2", "merchants", "{{merchant_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Store",
+      "item": [
+        {
+          "name": "Create Store",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Cabang Utama\",\n  \"address\": \"Jl. Merdeka No. 1\",\n  \"city\": \"Jakarta\",\n  \"phone\": \"021123456\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/v2/merchants/{{merchant_id}}/stores",
+              "host": ["{{base_url}}"],
+              "path": ["v2", "merchants", "{{merchant_id}}", "stores"]
+            }
+          }
+        },
+        {
+          "name": "List Stores",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v2/merchants/{{merchant_id}}/stores",
+              "host": ["{{base_url}}"],
+              "path": ["v2", "merchants", "{{merchant_id}}", "stores"]
+            }
+          }
+        },
+        {
+          "name": "Get Store Detail (nested)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v2/merchants/{{merchant_id}}/stores/{{store_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["v2", "merchants", "{{merchant_id}}", "stores", "{{store_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Get Store Detail (flat)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v2/stores/{{store_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["v2", "stores", "{{store_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Store",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Cabang Utama Updated\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/v2/stores/{{store_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["v2", "stores", "{{store_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Store",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v2/stores/{{store_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["v2", "stores", "{{store_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "QRIS",
+      "item": [
+        {
+          "name": "Get QRIS Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v2/merchants/{{merchant_id}}/qris",
+              "host": ["{{base_url}}"],
+              "path": ["v2", "merchants", "{{merchant_id}}", "qris"]
+            }
+          }
+        },
+        {
+          "name": "Register QRIS",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ownerName\": \"Budi Santoso\",\n  \"ownerPhone\": \"08123456789\",\n  \"ownerIdNumber\": \"3174123456789012\",\n  \"merchantName\": \"Toko Saya\",\n  \"address\": \"Jl. Merdeka No. 1\",\n  \"city\": \"Jakarta\",\n  \"postalCode\": \"12345\",\n  \"province\": \"DKI Jakarta\",\n  \"storeType\": \"RETAIL\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/v2/merchants/{{merchant_id}}/qris/register",
+              "host": ["{{base_url}}"],
+              "path": ["v2", "merchants", "{{merchant_id}}", "qris", "register"]
+            }
+          }
+        },
+        {
+          "name": "Generate Static QRIS",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v2/merchants/{{merchant_id}}/qris/static",
+              "host": ["{{base_url}}"],
+              "path": ["v2", "merchants", "{{merchant_id}}", "qris", "static"]
+            }
+          }
+        },
+        {
+          "name": "Get Static QRIS",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v2/merchants/{{merchant_id}}/qris/static",
+              "host": ["{{base_url}}"],
+              "path": ["v2", "merchants", "{{merchant_id}}", "qris", "static"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Verifikasi",
+      "item": [
+        {
+          "name": "Submit Verifikasi",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ownerName\": \"Budi Santoso\",\n  \"identityType\": \"KTP\",\n  \"identityNumber\": \"3174123456789012\",\n  \"birthPlace\": \"Jakarta\",\n  \"birthDate\": \"1990-01-01\",\n  \"businessName\": \"Toko Saya\",\n  \"businessType\": \"RETAIL\",\n  \"documents\": [\n    {\n      \"type\": \"KTP\",\n      \"fileUrl\": \"https://storage.qzpayment.com/docs/ktp.pdf\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/v2/merchants/{{merchant_id}}/verifikasi",
+              "host": ["{{base_url}}"],
+              "path": ["v2", "merchants", "{{merchant_id}}", "verifikasi"]
+            }
+          }
+        },
+        {
+          "name": "Check Verifikasi Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v2/merchants/{{merchant_id}}/verifikasi",
+              "host": ["{{base_url}}"],
+              "path": ["v2", "merchants", "{{merchant_id}}", "verifikasi"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Staff",
+      "item": [
+        {
+          "name": "Invite Staff",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"staff@email.com\",\n  \"role\": \"VIEWER\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/v2/merchants/{{merchant_id}}/staff/invite",
+              "host": ["{{base_url}}"],
+              "path": ["v2", "merchants", "{{merchant_id}}", "staff", "invite"]
+            }
+          }
+        },
+        {
+          "name": "List Staff",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v2/merchants/{{merchant_id}}/staff",
+              "host": ["{{base_url}}"],
+              "path": ["v2", "merchants", "{{merchant_id}}", "staff"]
+            }
+          }
+        },
+        {
+          "name": "Update Staff Role",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"OPERATOR\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/v2/merchants/{{merchant_id}}/staff/{{staff_id}}/role",
+              "host": ["{{base_url}}"],
+              "path": ["v2", "merchants", "{{merchant_id}}", "staff", "{{staff_id}}", "role"]
+            }
+          }
+        },
+        {
+          "name": "Remove Staff",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v2/merchants/{{merchant_id}}/staff/{{staff_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["v2", "merchants", "{{merchant_id}}", "staff", "{{staff_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Accept Staff Invitation",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"invitation-token-here\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/v2/staff/accept",
+              "host": ["{{base_url}}"],
+              "path": ["v2", "staff", "accept"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Payment Link",
+      "item": [
+        {
+          "name": "Create Payment Link",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"merchantId\": \"{{merchant_id}}\",\n  \"amount\": 150000,\n  \"description\": \"Pembayaran order #123\",\n  \"feeBearer\": \"MERCHANT\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/v2/payment-links",
+              "host": ["{{base_url}}"],
+              "path": ["v2", "payment-links"]
+            }
+          }
+        },
+        {
+          "name": "List Payment Links",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v2/merchants/{{merchant_id}}/payment-links",
+              "host": ["{{base_url}}"],
+              "path": ["v2", "merchants", "{{merchant_id}}", "payment-links"]
+            }
+          }
+        },
+        {
+          "name": "Get Payment Link Detail",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v2/payment-links/{{payment_link_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["v2", "payment-links", "{{payment_link_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Payment Link",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"merchantId\": \"{{merchant_id}}\",\n  \"amount\": 200000,\n  \"description\": \"Updated order #123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/v2/payment-links/{{payment_link_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["v2", "payment-links", "{{payment_link_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Payment Link",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"merchantId\": \"{{merchant_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/v2/payment-links/{{payment_link_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["v2", "payment-links", "{{payment_link_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Get Payment Link by Code (Public)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v2/payment-links/code/{{payment_link_code}}",
+              "host": ["{{base_url}}"],
+              "path": ["v2", "payment-links", "code", "{{payment_link_code}}"]
+            }
+          }
+        },
+        {
+          "name": "Pay Payment Link (Public)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 150000,\n  \"customerName\": \"Budi\",\n  \"customerEmail\": \"budi@email.com\",\n  \"channel\": \"QRIS\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/v2/payment-links/code/{{payment_link_code}}/pay",
+              "host": ["{{base_url}}"],
+              "path": ["v2", "payment-links", "code", "{{payment_link_code}}", "pay"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Notifications",
+      "item": [
+        {
+          "name": "List Notifications",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v2/notifications?page=1&limit=20",
+              "host": ["{{base_url}}"],
+              "path": ["v2", "notifications"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Unread Count",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v2/notifications/unread-count",
+              "host": ["{{base_url}}"],
+              "path": ["v2", "notifications", "unread-count"]
+            }
+          }
+        },
+        {
+          "name": "Mark Notification Read",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v2/notifications/{{notification_id}}/read",
+              "host": ["{{base_url}}"],
+              "path": ["v2", "notifications", "{{notification_id}}", "read"]
+            }
+          }
+        },
+        {
+          "name": "Mark All Read",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v2/notifications/mark-all-read",
+              "host": ["{{base_url}}"],
+              "path": ["v2", "notifications", "mark-all-read"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Developer",
+      "item": [
+        {
+          "name": "Create API Key",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Production Backend\",\n  \"scopes\": [\"payment:create\", \"payment:read\", \"balance:read\", \"withdrawal:create\", \"webhook:manage\"]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/v2/developer/api-keys",
+              "host": ["{{base_url}}"],
+              "path": ["v2", "developer", "api-keys"]
+            }
+          }
+        },
+        {
+          "name": "List API Keys",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v2/developer/api-keys",
+              "host": ["{{base_url}}"],
+              "path": ["v2", "developer", "api-keys"]
+            }
+          }
+        },
+        {
+          "name": "Delete API Key",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v2/developer/api-keys/{{api_key_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["v2", "developer", "api-keys", "{{api_key_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Get API Logs",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v2/developer/logs?page=1&limit=20",
+              "host": ["{{base_url}}"],
+              "path": ["v2", "developer", "logs"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "exec": [
+          "const crypto = require('crypto-js');",
+          "",
+          "const qzpayKey = pm.environment.get('qzpay_key');",
+          "const qzpaySecret = pm.environment.get('qzpay_secret');",
+          "",
+          "if (!qzpayKey || !qzpaySecret) {",
+          "  console.log('⚠️  Set qzpay_key dan qzpay_secret di environment');",
+          "  return;",
+          "}",
+          "",
+          "const method = pm.request.method;",
+          "let url = pm.request.url.toString();",
+          "",
+          "// Parse URL — ambil path aja (tanpa base_url)",
+          "const baseUrl = pm.environment.get('base_url') || 'https://api.qzpayment.com/v2';",
+          "let path = url.replace(baseUrl, '');",
+          "// Hapus query string dari path untuk signature",
+          "const pathOnly = path.split('?')[0];",
+          "",
+          "// Dapatkan body",
+          "let bodyStr = '';",
+          "const body = pm.request.body;",
+          "if (body && body.raw) {",
+          "  try {",
+          "    const parsed = JSON.parse(body.raw);",
+          "    // Sort keys untuk canonical JSON",
+          "    const sorted = Object.keys(parsed).sort().reduce((obj, key) => {",
+          "      obj[key] = parsed[key];",
+          "      return obj;",
+          "    }, {});",
+          "    bodyStr = JSON.stringify(sorted);",
+          "  } catch(e) {",
+          "    bodyStr = body.raw;",
+          "  }",
+          "}",
+          "",
+          "const bodyHash = crypto.SHA256(bodyStr).toString(crypto.enc.Hex).toLowerCase();",
+          "const timestamp = new Date().toISOString().replace(/\\.\\d{3}/, '');",
+          "const stringToSign = method + ':' + pathOnly + ':' + bodyHash + ':' + timestamp;",
+          "const signature = crypto.HmacSHA256(stringToSign, qzpaySecret).toString(crypto.enc.Hex);",
+          "",
+          "pm.request.headers.upsert({ key: 'X-QZPAY-KEY', value: qzpayKey });",
+          "pm.request.headers.upsert({ key: 'X-QZPAY-TIMESTAMP', value: timestamp });",
+          "pm.request.headers.upsert({ key: 'X-QZPAY-SIGNATURE', value: signature });",
+          "",
+          "// Auto-add Content-Type untuk POST/PUT yang punya body",
+          "if ((method === 'POST' || method === 'PUT') && body && body.raw) {",
+          "  pm.request.headers.upsert({ key: 'Content-Type', value: 'application/json' });",
+          "}"
+        ],
+        "type": "text/javascript"
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "https://api.qzpayment.com/v2",
+      "type": "string"
+    },
+    {
+      "key": "qzpay_key",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "qzpay_secret",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "merchant_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "store_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "payment_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "reference_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "webhook_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "wd_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "api_key_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "notification_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "payment_link_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "payment_link_code",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "staff_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "payment_amount",
+      "value": "15000",
+      "type": "string"
+    },
+    {
+      "key": "wd_amount",
+      "value": "500000",
+      "type": "string"
+    }
+  ]
+}
