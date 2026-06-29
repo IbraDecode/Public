@@ -1,0 +1,31 @@
+name: Backup Neon to Telegram
+
+on:
+  schedule:
+    - cron: '0 19 * * *'
+  workflow_dispatch:
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install PostgreSQL Client
+        run: |
+          sudo apt update
+          sudo apt install -y postgresql-client
+
+      - name: Create Backup
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          pg_dump -Fc "$DATABASE_URL" -f backup.dump
+
+      - name: Send to Telegram
+        env:
+          BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
+          CHAT_ID: ${{ secrets.TG_CHAT_ID }}
+        run: |
+          curl -F chat_id="$CHAT_ID" \
+               -F document=@backup.dump \
+               "https://api.telegram.org/bot$BOT_TOKEN/sendDocument"
