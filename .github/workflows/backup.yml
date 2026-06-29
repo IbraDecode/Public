@@ -1,31 +1,67 @@
 name: Backup Neon to Telegram
 
 on:
-  schedule:
-    - cron: '0 19 * * *'
   workflow_dispatch:
+
+  schedule:
+    - cron: "0 19 * * *" # 02:00 WIB
 
 jobs:
   backup:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Install PostgreSQL Client
+      - name: Install PostgreSQL 17 Client
         run: |
           sudo apt update
-          sudo apt install -y postgresql-client
+          sudo apt install -y wget ca-certificates gnupg
+
+          wget -qO- https://www.postgresql.org/media/keys/ACCC4CF8.asc \
+            | gpg --dearmor \
+            | sudo tee /usr/share/keyrings/postgresql.gpg > /dev/null
+
+          echo "deb [signed-by=/usr/share/keyrings/postgresql.gpg] http://apt.postgresql.org/pub/repos/apt noble-pgdg main" \
+            | sudo tee /etc/apt/sources.list.d/pgdg.list
+
+          sudo apt update
+          sudo apt install -y postgresql-client-17
+
+          pg_dump --version
 
       - name: Create Backup
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
-          pg_dump -Fc "$DATABASE_URL" -f backup.dump
+          FILE_NAME="neon-$(date +'%Y-%m-%d_%H-%M').dump"
 
-      - name: Send to Telegram
+          pg_dump \
+            -Fc \
+            "$DATABASE_URL" \
+            -f "$FILE_NAME"
+
+          gzip "$FILE_NAME"
+
+          echo "BACKUP_FILE=${FILE_NAME}.gz" >> $GITHUB_ENV
+
+      - name: Send Backup to Telegram
         env:
           BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
           CHAT_ID: ${{ secrets.TG_CHAT_ID }}
         run: |
-          curl -F chat_id="$CHAT_ID" \
-               -F document=@backup.dump \
-               "https://api.telegram.org/bot$BOT_TOKEN/sendDocument"
+          curl -s \
+            -F chat_id="$CHAT_ID" \
+            -F document=@"$BACKUP_FILE" \
+            -F caption="✅ Backup Neon berhasil $(date)" \
+            "https://api.telegram.org/bot${BOT_TOKEN}/sendDocument"
+
+      - name: Send Failure Notification
+        if: failure()
+        env:
+          BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
+          CHAT_ID: ${{ secrets.TG_CHAT_ID }}
+        run: |
+          curl -s \
+            -X POST \
+            "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
+            -d chat_id="$CHAT_ID" \
+            -d text="❌ Backup Neon gagal pada workflow ${{ github.workflow }}"
